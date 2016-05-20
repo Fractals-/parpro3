@@ -1,9 +1,9 @@
 CXX = mpic++
-CFLAGS = -Wall -Wextra -O3 -g -mcmodel=medium
+CFLAGS = -Wall -Wextra -O3 -g
 
 all:	parsort
 
-parsort:	parsort.o
+parsort:	parsort.o blocksort.o heapsort.o
 	$(CXX) $(CFLAGS) -o $@ $^ #-lrt
 
 %.o:	%.cc
