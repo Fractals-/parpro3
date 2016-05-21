@@ -32,7 +32,7 @@ size_t n;
  */
 void mergeSortProcessors( int *&my_array ){
   int step = 1; // Stores the current step size
-  int nstep, mod_rank, comm_size = 10000, other;
+  int nstep, mod_rank, comm_size = 12500, other;
   MPI_Status status;
 
   size_t i, new_n, local, filled;
@@ -49,7 +49,7 @@ void mergeSortProcessors( int *&my_array ){
       local = n - 1;
       filled = new_n - 1;
       // Allocate the required additional space
-      my_array = (int*) realloc(my_array, sizeof(int) * new_n);
+      //my_array = (int*) realloc(my_array, sizeof(int) * new_n);
 
       // Perform this in pieces as to have relatively small communication sizes
       for ( i = 1; i < n; i += comm_size ) {
@@ -96,7 +96,17 @@ int main( int argc, char **argv ){
   MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
 
   n = N / mpi_size;
+  int step = 2;
+  while ( step < mpi_size ) {
+    if ( rank % step == 0 )
+      n *= 2;
+  }
+  fprintf(stderr, "%d: %lu\n", rank, n);
+  MPI_Finalize();
+  return 0;
+
   int *my_array = (int*) malloc(sizeof(int) * n);
+  n = N / mpi_size;
 
   /* Initialize the random number generator for the given BASE_SEED
   * plus an offset for the MPI rank of the node, such that on every
@@ -153,4 +163,5 @@ int main( int argc, char **argv ){
 
   free(my_array);
   MPI_Finalize();
+  return 0;
 }
