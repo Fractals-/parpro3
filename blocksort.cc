@@ -89,12 +89,10 @@ void blockSort( int *my_array, size_t n ){
   size_t i, j, start, mid, end,
          power_of_two = floorPowerOfTwo(n);
   double scale = n / (double) power_of_two;
-  fprintf(stdout, "%llu, %.8f\n", power_of_two, scale);
 
   for ( i = 0; i < power_of_two; i += 16 ) {
     start = i * scale;
     end = (i + 16) * scale;
-    fprintf(stdout, "%llu, %llu\n", start, end);
     reversed_insertionSort(my_array, start, end);
   }
 
@@ -104,7 +102,7 @@ void blockSort( int *my_array, size_t n ){
       mid = (i + j) * scale;
       end = (i + j * 2) * scale;
 
-      fprintf(stdout, "%llu, %llu, %llu\n", start, mid, end);
+      //fprintf(stdout, "%llu, %llu, %llu\n", start, mid, end);
 
       if ( my_array[end - 1] < my_array[start] )
         rotate(my_array, start, mid, end);
