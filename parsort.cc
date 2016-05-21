@@ -97,7 +97,7 @@ int main( int argc, char **argv ){
 
   n = N / mpi_size;
   int step = 2;
-  while ( step < mpi_size ) {
+  while ( step <= mpi_size ) {
     if ( rank % step == 0 )
       n *= 2;
     step *= 2;
