@@ -156,8 +156,10 @@ int main( int argc, char **argv ){
     fprintf(stdout, "Execution time: %.4f\n", elapsed_time);
   }
 
+  // Debug output
   MPI_Barrier(MPI_COMM_WORLD);
-  fprintf(stdout, "--------------------\n");
+  if ( rank == 0 )
+    fprintf(stdout, "--------------------\n");
   fprintf(stdout, "%d: Execution time: %.2f\n", rank, elapsed_time);
 
   free(my_array);
