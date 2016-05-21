@@ -53,10 +53,12 @@ void mergeSortComponents( int *my_array ){
         while ( other >= 0 && local != ULONG_MAX ) {
           fprintf(stdout, "%lu, %lu, %d: %d, %d\n", filled, local, other, my_array[local], comm_array[other]);
           if ( my_array[local] < comm_array[other] ){
+            fprintf(stdout, "tada\n");
             my_array[filled] = comm_array[other];
             other--;
           }
           else {
+            fprintf(stdout, "tada2\n");
             my_array[filled] = my_array[local];
             local--;
           }
