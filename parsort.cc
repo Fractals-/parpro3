@@ -150,7 +150,7 @@ int main( int argc, char **argv ){
   // Output part of sorted array
   if ( rank == 0 ) {
     for ( size_t i = 0; i < N; i += 1 )//10000 )
-      fprintf(stdout, "%d\n", my_array[i]);
+      fprintf(stdout, "%llu, %d\n", i, my_array[i]);
     fprintf(stdout, "--------------------\n");
     fprintf(stdout, "Execution time: %.2f\n", elapsed_time);
   }
