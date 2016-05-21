@@ -8,7 +8,7 @@
 #include "blocksort.h"
 
 
-#define N 80000000UL//160000000000ULL
+#define N 160000000000UL//80000000UL//
 #define BASE_SEED1 0x1234abcd
 #define BASE_SEED2 0x10203040
 #define BASE_SEED3 0x40e8c724
