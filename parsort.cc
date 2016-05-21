@@ -22,9 +22,17 @@ size_t n;
 
 // *************************************************************************************
 
-void mergeSortComponents( int *&my_array ){
+/* Reduce the sorted arrays of all processors to one array through a 'tree structure'
+ *  At each step:
+ *    - allocate the required additional space
+ *    - Until done: send/recv 'comm_size' (sorted) integers, merge them with the local array
+ *                  to the end of the local array (backhalf was empty!)
+ * Parameters:
+ *    my_array - Pointer to the local sorted array
+ */
+void mergeSortProcessors( int *&my_array ){
   int step = 1; // Stores the current step size
-  int nstep, mod_rank, comm_size = 10, other;
+  int nstep, mod_rank, comm_size = 25, other;
   MPI_Status status;
 
   size_t i, new_n, local, filled;
@@ -36,21 +44,20 @@ void mergeSortComponents( int *&my_array ){
     mod_rank = rank % nstep;
 
     if ( mod_rank == 0 ) {
+      // Iterators used for merging two sorted lists from different processors
       new_n = 2 * n;
       local = n - 1;
       filled = new_n - 1;
+      // Allocate the required additional space
       my_array = (int*) realloc(my_array, sizeof(int) * new_n);
 
-      // for ( size_t j = 0; j < new_n; j += 1 )//10000 )
-      //   fprintf(stdout, "%lu, %d\n", j, my_array[j]);
-      // fprintf(stdout, "--------------------\n");
-      
-
+      // Perform this in pieces as to have relatively small communication sizes
       for ( i = 1; i < n; i += comm_size ) {
         MPI_Recv(&comm_array[0], comm_size, MPI_INT, rank + step, 0, MPI_COMM_WORLD, &status);
         other = comm_size - 1;
+        // Merge local sorted array with received array to the end of the local array
         while ( other >= 0 && local != ULONG_MAX ) {
-          fprintf(stdout, "%lu, %lu, %d: %d, %d\n", filled, local, other, my_array[local], comm_array[other]);
+          // fprintf(stdout, "%lu, %lu, %d: %d, %d\n", filled, local, other, my_array[local], comm_array[other]);
           if ( my_array[local] < comm_array[other] ){
             my_array[filled] = comm_array[other];
             other--;
@@ -70,6 +77,7 @@ void mergeSortComponents( int *&my_array ){
       n = new_n;
     }
     else if ( mod_rank - step == 0 ) {
+      // Send data in pieces as to have relatively small communication sizes
       for ( i = n - comm_size; i > 0; i -= comm_size )
         MPI_Send(&my_array[i], comm_size, MPI_INT, rank - step, 0, MPI_COMM_WORLD);
       MPI_Send(&my_array[0], comm_size, MPI_INT, rank - step, 0, MPI_COMM_WORLD);
@@ -77,13 +85,6 @@ void mergeSortComponents( int *&my_array ){
 
     step = nstep;
   }
-
-  // TODO: implement mergeSort for merging processor sorted arrays
-
-  // At each step:
-  //    - allocate the required additional space
-  //    - Until done: send/recv 'x' (sorted) integers, merge them into empty part 
-  //                  with the processors own sorted array (only as far as send integers go)
 }
 
 // *************************************************************************************
@@ -132,24 +133,11 @@ int main( int argc, char **argv ){
 
   double start_time = MPI_Wtime();
 
-  // Debug output
-  fprintf(stderr, "--------------------\n");
-  for (size_t i = 0; i < n; i++)
-    fprintf(stderr, "%d: %d\n", rank, my_array[i]);
-  fprintf(stderr, "--------------------\n");
-
   // TODO: sort array (of this processor) (heapsort or mergesort?)
   heapSort(my_array, n);
   //blockSort(my_array, n);
 
-  // Debug output
-  fprintf(stderr, "--------------------\n");
-  for (size_t i = 0; i < n; i++)
-    fprintf(stderr, "%d: %d\n", rank, my_array[i]);
-  fprintf(stderr, "--------------------\n");
-
-  // TODO: combine sorted arrays
-  mergeSortComponents(my_array);
+  mergeSortProcessors(my_array);
 
   double elapsed_time = MPI_Wtime() - start_time;
 
