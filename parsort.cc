@@ -8,7 +8,7 @@
 #include "blocksort.h"
 
 
-#define N 100ULL//160000000000ULL
+#define N 50ULL//160000000000ULL
 #define BASE_SEED1 0x1234abcd
 #define BASE_SEED2 0x10203040
 #define BASE_SEED3 0x40e8c724
@@ -24,7 +24,7 @@ size_t n;
 
 void mergeSortComponents( int *my_array ){
   int step = 1; // Stores the current step size
-  int nstep, mod_rank, comm_size = 50, other;
+  int nstep, mod_rank, comm_size = 25, other;
   MPI_Status status;
 
   size_t i, new_n, local, filled;
@@ -45,12 +45,13 @@ void mergeSortComponents( int *my_array ){
       for ( size_t j = 0; j < new_n; j += 1 )//10000 )
         fprintf(stdout, "%llu, %d\n", j, my_array[j]);
       fprintf(stdout, "--------------------\n");
-      fprintf(stdout, "%lu, %lu, %lu\n", filled, local, new_n);
+      
 
       for ( i = 1; i < n; i += comm_size ) {
         MPI_Recv(&comm_array[0], comm_size, MPI_INT, rank + step, 0, MPI_COMM_WORLD, &status);
         other = comm_size - 1;
         while ( other >= 0 && local != ULONG_MAX ) {
+          fprintf(stdout, "%lu, %lu, %d: %d, %d\n", filled, local, other, my_array[local], comm_array[other]);
           if ( my_array[local] < comm_array[other] ){
             my_array[filled] = comm_array[other];
             other--;
