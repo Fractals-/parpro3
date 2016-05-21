@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <cstdio>
 #include <cmath>
+#include <climits>
 #include "mpi.h"
 
 #include "heapsort.h"
