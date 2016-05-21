@@ -127,20 +127,20 @@ int main( int argc, char **argv ){
   double start_time = MPI_Wtime();
 
   // Debug output
-  fprintf(stdout, "--------------------\n");
+  fprintf(stderr, "--------------------\n");
   for (size_t i = 0; i < n; i++)
     fprintf(stderr, "%d: %d\n", rank, my_array[i]);
-  fprintf(stdout, "--------------------\n");
+  fprintf(stderr, "--------------------\n");
 
   // TODO: sort array (of this processor) (heapsort or mergesort?)
   heapSort(my_array, n);
   //blockSort(my_array, n);
 
   // Debug output
-  fprintf(stdout, "--------------------\n");
+  fprintf(stderr, "--------------------\n");
   for (size_t i = 0; i < n; i++)
     fprintf(stderr, "%d: %d\n", rank, my_array[i]);
-  fprintf(stdout, "--------------------\n");
+  fprintf(stderr, "--------------------\n");
 
   // TODO: combine sorted arrays
   mergeSortComponents(my_array);
@@ -149,13 +149,13 @@ int main( int argc, char **argv ){
 
   // Output part of sorted array
   if ( rank == 0 ) {
-    for (size_t i = 0; i < N; i += 10000)
+    for ( size_t i = 0; i < N; i += 1 )//10000 )
       fprintf(stdout, "%d\n", my_array[i]);
     fprintf(stdout, "--------------------\n");
     fprintf(stdout, "Execution time: %.2f\n", elapsed_time);
   }
 
-  fprintf(stdout, "%d: Execution time: %.2f\n", rank, elapsed_time);
+  fprintf(stderr, "%d: Execution time: %.2f\n", rank, elapsed_time);
 
   free(my_array);
   MPI_Finalize();
