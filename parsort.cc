@@ -156,6 +156,7 @@ int main( int argc, char **argv ){
     fprintf(stdout, "Execution time: %.4f\n", elapsed_time);
   }
 
+  MPI_Barrier(MPI_COMM_WORLD);
   fprintf(stdout, "--------------------\n");
   fprintf(stdout, "%d: Execution time: %.2f\n", rank, elapsed_time);
 
