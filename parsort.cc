@@ -42,6 +42,10 @@ void mergeSortComponents( int *my_array ){
       filled = new_n - 1;
       my_array = (int*) realloc(my_array, sizeof(int) * new_n);
 
+      for ( size_t i = 0; i < new_n; i += 1 )//10000 )
+        fprintf(stdout, "%llu, %d\n", i, my_array[i]);
+      fprintf(stdout, "--------------------\n");
+
       for ( i = 0; i < n; i += comm_size ) {
         MPI_Recv(&comm_array[0], comm_size, MPI_INT, rank + step, 0, MPI_COMM_WORLD, &status);
         other = comm_size - 1;
