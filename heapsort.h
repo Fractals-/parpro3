@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <cmath>
 
 void siftDown( int *my_array, size_t i, size_t end );
