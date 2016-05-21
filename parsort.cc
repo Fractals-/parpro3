@@ -102,10 +102,6 @@ int main( int argc, char **argv ){
       n *= 2;
     step *= 2;
   }
-  fprintf(stderr, "%d: %lu\n", rank, n);
-  MPI_Finalize();
-  return 0;
-
   int *my_array = (int*) malloc(sizeof(int) * n);
   n = N / mpi_size;
 
