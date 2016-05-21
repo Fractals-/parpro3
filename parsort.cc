@@ -46,7 +46,7 @@ void mergeSortComponents( int *my_array ){
         fprintf(stdout, "%llu, %d\n", j, my_array[j]);
       fprintf(stdout, "--------------------\n");
 
-      for ( i = 0; i < n; i += comm_size ) {
+      for ( i = 1; i < n; i += comm_size ) {
         MPI_Recv(&comm_array[0], comm_size, MPI_INT, rank + step, 0, MPI_COMM_WORLD, &status);
         other = comm_size - 1;
         while ( other != ULLONG_MAX && local != ULLONG_MAX ) {
@@ -70,8 +70,8 @@ void mergeSortComponents( int *my_array ){
     }
     else if ( mod_rank - step == 0 ) {
       //MPI_Send(&n, 1, MPI_UNSIGNED_LONG_LONG, rank - step, 0, MPI_COMM_WORLD);
-      for ( i = 0; i < n; i += comm_size )
-        MPI_Send(&my_array[i], comm_size, MPI_INT, rank - step, 0, MPI_COMM_WORLD);
+      for ( i = 1; i < n; i += comm_size )
+        MPI_Send(&my_array[i - 1], comm_size, MPI_INT, rank - step, 0, MPI_COMM_WORLD);
     }
 
     step = nstep;
