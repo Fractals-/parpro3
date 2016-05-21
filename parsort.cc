@@ -24,10 +24,10 @@ size_t n;
 
 void mergeSortComponents( int *my_array ){
   int step = 1; // Stores the current step size
-  int nstep, mod_rank, comm_size = 50;
+  int nstep, mod_rank, comm_size = 50, other;
   MPI_Status status;
 
-  size_t i, new_n, local, filled, other;
+  size_t i, new_n, local, filled;
   int *comm_array = (int*) malloc(sizeof(int) * comm_size);
 
   // Perform stepwise reduction
@@ -50,7 +50,7 @@ void mergeSortComponents( int *my_array ){
       for ( i = 1; i < n; i += comm_size ) {
         MPI_Recv(&comm_array[0], comm_size, MPI_INT, rank + step, 0, MPI_COMM_WORLD, &status);
         other = comm_size - 1;
-        while ( other != ULLONG_MAX && local != ULLONG_MAX ) {
+        while ( other >= 0 && local != ULONG_MAX ) {
           if ( my_array[local] < comm_array[other] ){
             my_array[filled] = comm_array[other];
             other--;
@@ -61,7 +61,7 @@ void mergeSortComponents( int *my_array ){
           }
           filled--;
         }
-        while ( other != ULLONG_MAX ) {
+        while ( other >= 0 ) {
           my_array[filled] = comm_array[other];
           other--;
           filled--;
