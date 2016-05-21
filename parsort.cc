@@ -8,7 +8,7 @@
 #include "blocksort.h"
 
 
-#define N 100ULL//160000000000ULL
+#define N 200000UL//160000000000ULL
 #define BASE_SEED1 0x1234abcd
 #define BASE_SEED2 0x10203040
 #define BASE_SEED3 0x40e8c724
@@ -32,7 +32,7 @@ size_t n;
  */
 void mergeSortProcessors( int *&my_array ){
   int step = 1; // Stores the current step size
-  int nstep, mod_rank, comm_size = 25, other;
+  int nstep, mod_rank, comm_size = 10000, other;
   MPI_Status status;
 
   size_t i, new_n, local, filled;
@@ -143,7 +143,7 @@ int main( int argc, char **argv ){
 
   // Output part of sorted array
   if ( rank == 0 ) {
-    for ( size_t i = 0; i < N; i += 1 )//10000 )
+    for ( size_t i = 0; i < N; i += 10000 )
       fprintf(stdout, "%lu, %d\n", i, my_array[i]);
     fprintf(stdout, "--------------------\n");
     fprintf(stdout, "Execution time: %.4f\n", elapsed_time);
