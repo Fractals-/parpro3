@@ -24,7 +24,7 @@ size_t n;
 
 void mergeSortComponents( int *&my_array ){
   int step = 1; // Stores the current step size
-  int nstep, mod_rank, comm_size = 25, other;
+  int nstep, mod_rank, comm_size = 10, other;
   MPI_Status status;
 
   size_t i, new_n, local, filled;
