@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <cstdio>
 #include <cmath>
-//#include "mpi.h"
+#include "mpi.h"
 
 #include "heapsort.h"
 #include "blocksort.h"
