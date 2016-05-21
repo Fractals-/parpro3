@@ -36,7 +36,6 @@ void mergeSortComponents( int *&my_array ){
     mod_rank = rank % nstep;
 
     if ( mod_rank == 0 ) {
-      //MPI_Recv(&n_add, 1, MPI_UNSIGNED_LONG_LONG, rank + step, 0, MPI_COMM_WORLD, &status);
       new_n = 2 * n;
       local = n - 1;
       filled = new_n - 1;
@@ -51,6 +50,7 @@ void mergeSortComponents( int *&my_array ){
         MPI_Recv(&comm_array[0], comm_size, MPI_INT, rank + step, 0, MPI_COMM_WORLD, &status);
         other = comm_size - 1;
         while ( other >= 0 && local != ULONG_MAX ) {
+          fprintf(stdout, "%lu, %lu, %d: %d, %d\n", filled, local, other, my_array[local], comm_array[other]);
           if ( my_array[local] < comm_array[other] ){
             my_array[filled] = comm_array[other];
             other--;
@@ -70,7 +70,6 @@ void mergeSortComponents( int *&my_array ){
       n = new_n;
     }
     else if ( mod_rank - step == 0 ) {
-      //MPI_Send(&n, 1, MPI_UNSIGNED_LONG_LONG, rank - step, 0, MPI_COMM_WORLD);
       for ( i = 1; i < n; i += comm_size )
         MPI_Send(&my_array[i - 1], comm_size, MPI_INT, rank - step, 0, MPI_COMM_WORLD);
     }
@@ -158,7 +157,7 @@ int main( int argc, char **argv ){
     for ( size_t i = 0; i < N; i += 1 )//10000 )
       fprintf(stdout, "%lu, %d\n", i, my_array[i]);
     fprintf(stdout, "--------------------\n");
-    fprintf(stdout, "Execution time: %.2f\n", elapsed_time);
+    fprintf(stdout, "Execution time: %.4f\n", elapsed_time);
   }
 
   fprintf(stderr, "%d: Execution time: %.2f\n", rank, elapsed_time);
