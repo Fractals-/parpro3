@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -pe openmpi 8
-#$ -l h_rt=0:01:00
+#$ -l h_rt=0:15:00
 #$ -N TEST-3-1
 #$ -cwd
 
