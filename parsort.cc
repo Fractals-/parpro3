@@ -70,7 +70,7 @@ void mergeSortComponents( int *&my_array ){
       n = new_n;
     }
     else if ( mod_rank - step == 0 ) {
-      for ( i = n - comm_size - 1; i > 0; i -= comm_size )
+      for ( i = n - comm_size; i > 0; i -= comm_size )
         MPI_Send(&my_array[i], comm_size, MPI_INT, rank - step, 0, MPI_COMM_WORLD);
       MPI_Send(&my_array[0], comm_size, MPI_INT, rank - step, 0, MPI_COMM_WORLD);
     }
