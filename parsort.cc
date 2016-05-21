@@ -156,7 +156,8 @@ int main( int argc, char **argv ){
     fprintf(stdout, "Execution time: %.4f\n", elapsed_time);
   }
 
-  fprintf(stderr, "%d: Execution time: %.2f\n", rank, elapsed_time);
+  fprintf(stdout, "--------------------\n");
+  fprintf(stdout, "%d: Execution time: %.2f\n", rank, elapsed_time);
 
   free(my_array);
   MPI_Finalize();
