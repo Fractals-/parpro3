@@ -1,5 +1,5 @@
 CXX = mpic++
-CFLAGS = -Wall -Wextra -O3 -g
+CFLAGS = -Wall -Wextra -O3 -g -mcmodel=medium
 
 all:	parsort
 
