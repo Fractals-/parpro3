@@ -42,8 +42,8 @@ void mergeSortComponents( int *my_array ){
       filled = new_n - 1;
       my_array = (int*) realloc(my_array, sizeof(int) * new_n);
 
-      for ( size_t i = 0; i < new_n; i += 1 )//10000 )
-        fprintf(stdout, "%llu, %d\n", i, my_array[i]);
+      for ( size_t j = 0; j < new_n; j += 1 )//10000 )
+        fprintf(stdout, "%llu, %d\n", j, my_array[j]);
       fprintf(stdout, "--------------------\n");
 
       for ( i = 0; i < n; i += comm_size ) {
