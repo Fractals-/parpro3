@@ -22,7 +22,7 @@ size_t n;
 
 // *************************************************************************************
 
-void mergeSortComponents( int *my_array ){
+void mergeSortComponents( int *&my_array ){
   int step = 1; // Stores the current step size
   int nstep, mod_rank, comm_size = 25, other;
   MPI_Status status;
@@ -42,9 +42,9 @@ void mergeSortComponents( int *my_array ){
       filled = new_n - 1;
       my_array = (int*) realloc(my_array, sizeof(int) * new_n);
 
-      for ( size_t j = 0; j < new_n; j += 1 )//10000 )
-        fprintf(stdout, "%lu, %d\n", j, my_array[j]);
-      fprintf(stdout, "--------------------\n");
+      // for ( size_t j = 0; j < new_n; j += 1 )//10000 )
+      //   fprintf(stdout, "%lu, %d\n", j, my_array[j]);
+      // fprintf(stdout, "--------------------\n");
       
 
       for ( i = 1; i < n; i += comm_size ) {
@@ -78,9 +78,6 @@ void mergeSortComponents( int *my_array ){
     step = nstep;
   }
 
-  for ( size_t j = 0; j < n; j += 1 )//10000 )
-    fprintf(stdout, "%lu, %d\n", j, my_array[j]);
-  fprintf(stdout, "--------------------\n");
   // TODO: implement mergeSort for merging processor sorted arrays
 
   // At each step:
