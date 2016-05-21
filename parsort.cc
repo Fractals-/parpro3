@@ -45,12 +45,12 @@ void mergeSortComponents( int *my_array ){
       for ( size_t j = 0; j < new_n; j += 1 )//10000 )
         fprintf(stdout, "%llu, %d\n", j, my_array[j]);
       fprintf(stdout, "--------------------\n");
-      //fprintf(stdout, "%lu\n", sizeof(other));
+      fprintf(stdout, "%lu, %lu, %lu\n", filled, local, new_n);
 
       for ( i = 1; i < n; i += comm_size ) {
         MPI_Recv(&comm_array[0], comm_size, MPI_INT, rank + step, 0, MPI_COMM_WORLD, &status);
         other = comm_size - 1;
-        while ( other != ULONG_MAX && local != ULONG_MAX ) {
+        while ( other != ULLONG_MAX && local != ULLONG_MAX ) {
           if ( my_array[local] < comm_array[other] ){
             my_array[filled] = comm_array[other];
             other--;
@@ -61,7 +61,7 @@ void mergeSortComponents( int *my_array ){
           }
           filled--;
         }
-        while ( other != ULONG_MAX ) {
+        while ( other != ULLONG_MAX ) {
           my_array[filled] = comm_array[other];
           other--;
           filled--;
