@@ -42,7 +42,7 @@ void mergeSortComponents( int *my_array ){
       my_array = (int*) realloc(my_array, sizeof(int) * new_n);
 
       for ( i = 0; i < n; i += comm_size ) {
-        MPI_Recv(&comm_array[0], comm_size, MPI_INT, rank + step, 0, MPI_COMM_WORLD);
+        MPI_Recv(&comm_array[0], comm_size, MPI_INT, rank + step, 0, MPI_COMM_WORLD, &status);
         other = comm_size - 1;
         while ( other != ULLONG_MAX && local != ULLONG_MAX ) {
           if ( my_array[local] < comm_array[other] ){
@@ -144,7 +144,7 @@ int main( int argc, char **argv ){
   // TODO: combine sorted arrays
   mergeSortComponents(my_array);
 
-  double elapsed_time = MPI_Wtime - start_time;
+  double elapsed_time = MPI_Wtime() - start_time;
 
   // Output part of sorted array
   if ( rank == 0 ) {
