@@ -45,6 +45,7 @@ void mergeSortComponents( int *my_array ){
       for ( size_t j = 0; j < new_n; j += 1 )//10000 )
         fprintf(stdout, "%llu, %d\n", j, my_array[j]);
       fprintf(stdout, "--------------------\n");
+      fprintf(stdout, "%d\n", sizeof(other));
 
       for ( i = 1; i < n; i += comm_size ) {
         MPI_Recv(&comm_array[0], comm_size, MPI_INT, rank + step, 0, MPI_COMM_WORLD, &status);
