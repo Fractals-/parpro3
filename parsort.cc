@@ -100,6 +100,7 @@ int main( int argc, char **argv ){
   while ( step < mpi_size ) {
     if ( rank % step == 0 )
       n *= 2;
+    step *= 2;
   }
   fprintf(stderr, "%d: %lu\n", rank, n);
   MPI_Finalize();
