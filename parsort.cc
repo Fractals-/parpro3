@@ -103,7 +103,7 @@ int main( int argc, char **argv ){
     step *= 2;
   }
   int *my_array = (int*) malloc(sizeof(int) * n);
-  int *comm_array = (int*) malloc(sizeof(int) * comm_size);
+  int *comm_array = (int*) malloc(sizeof(int) * 12500);
   n = N / mpi_size;
 
   MPI_Finalize();
