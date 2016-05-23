@@ -8,7 +8,7 @@
 #include "blocksort.h"
 
 
-#define N 160000000000UL//80000000UL//
+#define N 16000000000UL//80000000UL//
 #define BASE_SEED1 0x1234abcd
 #define BASE_SEED2 0x10203040
 #define BASE_SEED3 0x40e8c724
@@ -103,7 +103,11 @@ int main( int argc, char **argv ){
     step *= 2;
   }
   int *my_array = (int*) malloc(sizeof(int) * n);
+  int *comm_array = (int*) malloc(sizeof(int) * comm_size);
   n = N / mpi_size;
+
+  MPI_Finalize();
+  return 0;
 
   /* Initialize the random number generator for the given BASE_SEED
   * plus an offset for the MPI rank of the node, such that on every
