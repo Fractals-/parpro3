@@ -8,7 +8,7 @@
 #include "blocksort.h"
 
 
-#define N 16000000000UL//80000000UL//
+#define N 80000000UL//16000000000UL//
 #define BASE_SEED1 0x1234abcd
 #define BASE_SEED2 0x10203040
 #define BASE_SEED3 0x40e8c724
@@ -156,12 +156,7 @@ int main( int argc, char **argv ){
     step *= 2;
   }
   int *my_array = (int*) malloc(sizeof(int) * n);
-  fprintf(stdout, "%d: %lu\n", rank, n);
   n = N / mpi_size;
-
-  free(my_array);
-  MPI_Finalize();
-  return 0;
 
   /* Initialize the random number generator for the given BASE_SEED
   * plus an offset for the MPI rank of the node, such that on every
@@ -208,7 +203,7 @@ int main( int argc, char **argv ){
   if ( mpi_size != 1 )
     mergeSortProcessors(my_array);
   else {
-    for ( size_t i = 0; i < N; i += 10000000 )//output_interval )
+    for ( size_t i = 0; i < N; i += output_interval )//10000000 )
       fprintf(stdout, "%lu, %d\n", i, my_array[i]);
   }
 
