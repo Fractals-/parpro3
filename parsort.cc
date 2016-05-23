@@ -84,7 +84,7 @@ void mergeOutput( int *my_array, int *comm_array, size_t &local, size_t &filled 
  */
 void mergeSortProcessors( int *&my_array ){
   int step = 1; // Stores the current step size
-  int nstep, mod_rank, other;
+  int nstep, mod_rank;
   MPI_Status status;
 
   size_t i, new_n, local, filled;
@@ -108,7 +108,7 @@ void mergeSortProcessors( int *&my_array ){
         n = new_n;
       }
       else {
-        loacl = 0;
+        local = 0;
         filled = 0;
         for ( i = 1; i < n; i += comm_size ) {
           MPI_Recv(&comm_array[0], comm_size, MPI_INT, rank + step, 0, MPI_COMM_WORLD, &status);
