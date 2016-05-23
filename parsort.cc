@@ -103,11 +103,13 @@ int main( int argc, char **argv ){
     step *= 2;
   }
   int *my_array = (int*) malloc(sizeof(int) * n);
-  int *comm_array = (int*) malloc(sizeof(int) * 12500);
+  // int *comm_array = (int*) malloc(sizeof(int) * 12500);
   n = N / mpi_size;
 
-  MPI_Finalize();
-  return 0;
+  // free(my_array);
+  // free(comm_array);
+  // MPI_Finalize();
+  // return 0;
 
   /* Initialize the random number generator for the given BASE_SEED
   * plus an offset for the MPI rank of the node, such that on every
@@ -148,9 +150,12 @@ int main( int argc, char **argv ){
   heapSort(my_array, n);
   //blockSort(my_array, n);
 
+  double elapsed_time = MPI_Wtime() - start_time;
+  fprintf(stdout, "%d: Execution time: %.2f\n", rank, elapsed_time);
+
   mergeSortProcessors(my_array);
 
-  double elapsed_time = MPI_Wtime() - start_time;
+  elapsed_time = MPI_Wtime() - start_time;
 
   // Output part of sorted array
   if ( rank == 0 ) {
