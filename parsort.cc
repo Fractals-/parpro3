@@ -15,9 +15,61 @@
 #define BASE_SEED4 0x79cbba1d
 #define BASE_SEED5 0xac7bd459
 
+const int comm_size = 12500;
+const int output_interval = 10000;
+
 static int rank;
 static int mpi_size;
 size_t n;
+
+// *************************************************************************************
+
+void mergeTwo( int *my_array, int *comm_array, size_t &local, size_t &filled ){
+  int other = comm_size - 1;
+  // Merge local sorted array with received array to the end of the local array
+  while ( other >= 0 && local != ULONG_MAX ) {
+    if ( my_array[local] < comm_array[other] ) {
+      my_array[filled] = comm_array[other];
+      other--;
+    }
+    else {
+      my_array[filled] = my_array[local];
+      local--;
+    }
+    filled--;
+  }
+  while ( other >= 0 ) {
+    my_array[filled] = comm_array[other];
+    other--;
+    filled--;
+  }
+}
+
+// *************************************************************************************
+
+void mergeOutput( int *my_array, int *comm_array, size_t &local, size_t &filled ){
+  int other = 0;
+  // Output local sorted array with received array to the end of the local array
+  while ( other < comm_size && local < n ) {
+    if ( my_array[local] > comm_array[other] ) {
+      if ( filled % output_interval == 0 )
+        fprintf(stdout, "%lu, %d\n", filled / output_interval, comm_array[other]);
+      other++;
+    }
+    else {
+      if ( filled % output_interval == 0 )
+        fprintf(stdout, "%lu, %d\n", filled / output_interval, my_array[local]);
+      local++;
+    }
+    filled++;
+  }
+  while ( other < comm_size ) {
+    if ( filled % output_interval == 0 )
+      fprintf(stdout, "%lu, %d\n", filled / output_interval, comm_array[other]);
+    other++;
+    filled++;
+  }
+}
 
 
 // *************************************************************************************
@@ -32,7 +84,7 @@ size_t n;
  */
 void mergeSortProcessors( int *&my_array ){
   int step = 1; // Stores the current step size
-  int nstep, mod_rank, comm_size = 12500, other;
+  int nstep, mod_rank, other;
   MPI_Status status;
 
   size_t i, new_n, local, filled;
@@ -44,43 +96,44 @@ void mergeSortProcessors( int *&my_array ){
     mod_rank = rank % nstep;
 
     if ( mod_rank == 0 ) {
-      // Iterators used for merging two sorted lists from different processors
-      new_n = 2 * n;
-      local = n - 1;
-      filled = new_n - 1;
-      // Allocate the required additional space
-      //my_array = (int*) realloc(my_array, sizeof(int) * new_n);
-
-      // Perform this in pieces as to have relatively small communication sizes
-      for ( i = 1; i < n; i += comm_size ) {
-        MPI_Recv(&comm_array[0], comm_size, MPI_INT, rank + step, 0, MPI_COMM_WORLD, &status);
-        other = comm_size - 1;
-        // Merge local sorted array with received array to the end of the local array
-        while ( other >= 0 && local != ULONG_MAX ) {
-          // fprintf(stdout, "%lu, %lu, %d: %d, %d\n", filled, local, other, my_array[local], comm_array[other]);
-          if ( my_array[local] < comm_array[other] ){
-            my_array[filled] = comm_array[other];
-            other--;
-          }
-          else {
-            my_array[filled] = my_array[local];
-            local--;
-          }
-          filled--;
+      if ( 2 * step != mpi_size ) {
+        new_n = 2 * n;
+        local = n - 1;
+        filled = new_n - 1;
+        // Perform this in pieces as to have relatively small communication sizes
+        for ( i = 1; i < n; i += comm_size ) {
+          MPI_Recv(&comm_array[0], comm_size, MPI_INT, rank + step, 0, MPI_COMM_WORLD, &status);
+          mergeTwo(my_array, comm_array, local, filled);
         }
-        while ( other >= 0 ) {
-          my_array[filled] = comm_array[other];
-          other--;
-          filled--;
+        n = new_n;
+      }
+      else {
+        loacl = 0;
+        filled = 0;
+        for ( i = 1; i < n; i += comm_size ) {
+          MPI_Recv(&comm_array[0], comm_size, MPI_INT, rank + step, 0, MPI_COMM_WORLD, &status);
+          mergeOutput(my_array, comm_array, local, filled);
+        }
+        // Output (if necessary) any remaining values
+        while ( local < n ) {
+          if ( filled % output_interval == 0 )
+            fprintf(stdout, "%lu, %d\n", filled / output_interval, my_array[local]);
+          local++;
+          filled++;
         }
       }
-      n = new_n;
     }
     else if ( mod_rank - step == 0 ) {
-      // Send data in pieces as to have relatively small communication sizes
-      for ( i = n - comm_size; i > 0; i -= comm_size )
-        MPI_Send(&my_array[i], comm_size, MPI_INT, rank - step, 0, MPI_COMM_WORLD);
-      MPI_Send(&my_array[0], comm_size, MPI_INT, rank - step, 0, MPI_COMM_WORLD);
+      if ( 2 * step != mpi_size ) {
+        // Send data in pieces as to have relatively small communication sizes
+        for ( i = n - comm_size; i > 0; i -= comm_size )
+          MPI_Send(&my_array[i], comm_size, MPI_INT, rank - step, 0, MPI_COMM_WORLD);
+        MPI_Send(&my_array[0], comm_size, MPI_INT, rank - step, 0, MPI_COMM_WORLD);
+      }
+      else {
+        for ( i = 0; i < n; i += comm_size )
+          MPI_Send(&my_array[i], comm_size, MPI_INT, rank - step, 0, MPI_COMM_WORLD);
+      }
     }
 
     step = nstep;
@@ -97,19 +150,18 @@ int main( int argc, char **argv ){
 
   n = N / mpi_size;
   int step = 2;
-  while ( step <= mpi_size ) {
+  while ( step < mpi_size ) {
     if ( rank % step == 0 )
       n *= 2;
     step *= 2;
   }
   int *my_array = (int*) malloc(sizeof(int) * n);
-  // int *comm_array = (int*) malloc(sizeof(int) * 12500);
+  fprintf(stdout, "%d: %lu\n", rank, n);
   n = N / mpi_size;
 
-  // free(my_array);
-  // free(comm_array);
-  // MPI_Finalize();
-  // return 0;
+  free(my_array);
+  MPI_Finalize();
+  return 0;
 
   /* Initialize the random number generator for the given BASE_SEED
   * plus an offset for the MPI rank of the node, such that on every
@@ -153,14 +205,17 @@ int main( int argc, char **argv ){
   double elapsed_time = MPI_Wtime() - start_time;
   fprintf(stdout, "%d: Execution time: %.2f\n", rank, elapsed_time);
 
-  mergeSortProcessors(my_array);
+  if ( mpi_size != 1 )
+    mergeSortProcessors(my_array);
+  else {
+    for ( size_t i = 0; i < N; i += 10000000 )//output_interval )
+      fprintf(stdout, "%lu, %d\n", i, my_array[i]);
+  }
 
   elapsed_time = MPI_Wtime() - start_time;
 
   // Output part of sorted array
   if ( rank == 0 ) {
-    for ( size_t i = 0; i < N; i += 10000000 )//10000 )
-      fprintf(stdout, "%lu, %d\n", i, my_array[i]);
     fprintf(stdout, "--------------------\n");
     fprintf(stdout, "Execution time: %.4f\n", elapsed_time);
   }
