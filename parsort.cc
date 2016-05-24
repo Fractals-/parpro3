@@ -8,7 +8,7 @@
 #include "blocksort.h"
 
 
-#define N 1600000UL//16000000000UL//80000000UL
+#define N 80000000UL//16000000000UL//
 #define BASE_SEED1 0x1234abcd
 #define BASE_SEED2 0x10203040
 #define BASE_SEED3 0x40e8c724
@@ -16,7 +16,7 @@
 #define BASE_SEED5 0xac7bd459
 
 const int comm_size = 12500;
-const int output_interval = 10000;
+const int output_interval = 1000000;
 
 static int rank;
 static int mpi_size;
