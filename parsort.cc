@@ -53,19 +53,19 @@ void mergeOutput( int *my_array, int *comm_array, size_t &local, size_t &filled 
   while ( other < comm_size && local < n ) {
     if ( my_array[local] > comm_array[other] ) {
       if ( filled % output_interval == 0 )
-        fprintf(stdout, "%lu, %d\n", filled / output_interval, comm_array[other]);
+        fprintf(stdout, "%lu, %d\n", filled, comm_array[other]);
       other++;
     }
     else {
       if ( filled % output_interval == 0 )
-        fprintf(stdout, "%lu, %d\n", filled / output_interval, my_array[local]);
+        fprintf(stdout, "%lu, %d\n", filled, my_array[local]);
       local++;
     }
     filled++;
   }
   while ( other < comm_size ) {
     if ( filled % output_interval == 0 )
-      fprintf(stdout, "%lu, %d\n", filled / output_interval, comm_array[other]);
+      fprintf(stdout, "%lu, %d\n", filled, comm_array[other]);
     other++;
     filled++;
   }
