@@ -212,7 +212,7 @@ int main( int argc, char **argv ){
   // Output part of sorted array
   if ( rank == 0 ) {
     fprintf(stdout, "--------------------\n");
-    fprintf(stdout, "Execution time: %.4f\n", elapsed_time);
+    fprintf(stdout, "Execution time: %f\n", elapsed_time);
   }
 
   // Debug output
