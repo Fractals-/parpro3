@@ -3,7 +3,7 @@ CFLAGS = -Wall -Wextra -O3 -g -mcmodel=medium
 
 all:	parsort2
 
-parsort2:	parsort.o blocksort.o heapsort.o
+parsort2:	parsort.o heapsort.o
 	$(CXX) $(CFLAGS) -o $@ $^ #-lrt
 
 %.o:	%.cc
