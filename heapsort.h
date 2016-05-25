@@ -1,3 +1,10 @@
+/* heapsort.h
+ * Assignment 3, Parallel Programming, LIACS
+ *
+ * Hanjo Boekhout - s1281348
+ * 25-5-2016
+ */
+
 #include <stdlib.h>
 #include <cmath>
 

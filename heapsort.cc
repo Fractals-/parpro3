@@ -1,3 +1,10 @@
+/* heapsort.cc
+ * Assignment 3, Parallel Programming, LIACS
+ *
+ * Hanjo Boekhout - s1281348
+ * 25-5-2016
+ */
+
 #include "heapsort.h"
 
 // *************************************************************************************
