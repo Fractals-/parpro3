@@ -5,10 +5,8 @@
 #include "mpi.h"
 
 #include "heapsort.h"
-#include "blocksort.h"
 
-
-#define N 16000000000UL//80000000UL
+#define N 200000UL//16000000000UL
 #define BASE_SEED1 0x1234abcd
 #define BASE_SEED2 0x10203040
 #define BASE_SEED3 0x40e8c724
@@ -16,7 +14,7 @@
 #define BASE_SEED5 0xac7bd459
 
 const int comm_size = 12500;
-const int output_interval = 1000000;
+const int output_interval = 10000;
 
 static int rank;
 static int mpi_size;
@@ -24,9 +22,15 @@ size_t n;
 
 // *************************************************************************************
 
+/* Merge local sorted array with received array to the end of the local array
+ * Parameters:
+ *    my_array   - Pointer to the local array
+ *    comm_array - Pointer to part of the 'source' array to merge with
+ *    local      - Index indicating how much of the local array has already been merged
+ *    filled     - Index indicating how much has been filled (sorted) already
+ */
 void mergeTwo( int *my_array, int *comm_array, size_t &local, size_t &filled ){
   int other = comm_size - 1;
-  // Merge local sorted array with received array to the end of the local array
   while ( other >= 0 && local != ULONG_MAX ) {
     if ( my_array[local] < comm_array[other] ) {
       my_array[filled] = comm_array[other];
@@ -47,9 +51,15 @@ void mergeTwo( int *my_array, int *comm_array, size_t &local, size_t &filled ){
 
 // *************************************************************************************
 
+/* Merge local sorted array with received array to the output
+ * Parameters:
+ *    my_array   - Pointer to the local array
+ *    comm_array - Pointer to part of the 'source' array to merge with
+ *    local      - Index indicating how much of the local array has already been merged
+ *    filled     - Index indicating how much has been filled (sorted) already
+ */
 void mergeOutput( int *my_array, int *comm_array, size_t &local, size_t &filled ){
   int other = 0;
-  // Output local sorted array with received array to the end of the local array
   while ( other < comm_size && local < n ) {
     if ( my_array[local] > comm_array[other] ) {
       if ( filled % output_interval == 0 )
@@ -76,9 +86,8 @@ void mergeOutput( int *my_array, int *comm_array, size_t &local, size_t &filled 
 
 /* Reduce the sorted arrays of all processors to one array through a 'tree structure'
  *  At each step:
- *    - allocate the required additional space
- *    - Until done: send/recv 'comm_size' (sorted) integers, merge them with the local array
- *                  to the end of the local array (backhalf was empty!)
+ *    - send/recv 'comm_size' (sorted) integers, merge them with the local array
+ *      to the end of the local array (backhalf was empty!)
  * Parameters:
  *    my_array - Pointer to the local sorted array
  */
@@ -95,8 +104,8 @@ void mergeSortProcessors( int *&my_array ){
     nstep = 2 * step;
     mod_rank = rank % nstep;
 
-    if ( mod_rank == 0 ) {
-      if ( 2 * step != mpi_size ) {
+    if ( mod_rank == 0 ) { // Receive
+      if ( 2 * step != mpi_size ) { // If this is not the final merge
         new_n = 2 * n;
         local = n - 1;
         filled = new_n - 1;
@@ -107,7 +116,7 @@ void mergeSortProcessors( int *&my_array ){
         }
         n = new_n;
       }
-      else {
+      else { // The final merge, thus output the result immediately
         local = 0;
         filled = 0;
         for ( i = 1; i < n; i += comm_size ) {
@@ -123,7 +132,7 @@ void mergeSortProcessors( int *&my_array ){
         }
       }
     }
-    else if ( mod_rank - step == 0 ) {
+    else if ( mod_rank - step == 0 ) { // Send
       if ( 2 * step != mpi_size ) {
         // Send data in pieces as to have relatively small communication sizes
         for ( i = n - comm_size; i > 0; i -= comm_size )
@@ -148,6 +157,7 @@ int main( int argc, char **argv ){
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
 
+  // Allocate the required memory space for each processor
   n = N / mpi_size;
   int step = 2;
   while ( step < mpi_size ) {
@@ -193,33 +203,23 @@ int main( int argc, char **argv ){
 
   double start_time = MPI_Wtime();
 
-  // TODO: sort array (of this processor) (heapsort or mergesort?)
+  // Sort the array
   heapSort(my_array, n);
-  //blockSort(my_array, n);
 
-  double elapsed_time = MPI_Wtime() - start_time;
-  fprintf(stdout, "%d: Execution time: %.2f\n", rank, elapsed_time);
-
-  if ( mpi_size != 1 )
+  if ( mpi_size != 1 ) // If we do not perform sequential execution
     mergeSortProcessors(my_array);
   else {
-    for ( size_t i = 0; i < N; i += output_interval )//10000000 )
+    for ( size_t i = 0; i < N; i += output_interval )
       fprintf(stdout, "%lu, %d\n", i, my_array[i]);
   }
 
-  elapsed_time = MPI_Wtime() - start_time;
+  double elapsed_time = MPI_Wtime() - start_time;
 
-  // Output part of sorted array
+  // Output runtime
   if ( rank == 0 ) {
     fprintf(stdout, "--------------------\n");
     fprintf(stdout, "Execution time: %f\n", elapsed_time);
   }
-
-  // Debug output
-  MPI_Barrier(MPI_COMM_WORLD);
-  if ( rank == 0 )
-    fprintf(stdout, "--------------------\n");
-  fprintf(stdout, "%d: Execution time: %.2f\n", rank, elapsed_time);
 
   free(my_array);
   MPI_Finalize();
