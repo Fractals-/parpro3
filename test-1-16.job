@@ -1,6 +1,6 @@
 #!/bin/bash
-#$ -pe openmpi 128
-#$ -l h_rt=0:15:00
+#$ -pe openmpi 64
+#$ -l h_rt=3:00:00
 #$ -N TEST-1-16
 #$ -cwd
 
@@ -12,7 +12,7 @@ ARGS="1"
 module load openmpi/gcc
 
 # Make new hostfile specifying the cores per node wanted
-ncores=1
+ncores=2
 HOSTFILE=$TMPDIR/hosts
 for host in `uniq $TMPDIR/machines`; do
     echo $host slots=$ncores
